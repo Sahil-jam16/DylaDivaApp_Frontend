@@ -1,0 +1,392 @@
+VERISON 1
+
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, ActivityIndicator, Text, RefreshControl, TouchableOpacity } from 'react-native';
+import { getAuth } from 'firebase/auth';
+import axios from 'axios';
+import RecommendationCard from '../components/RecommendationCard';
+
+const API_URL = 'https://6972df348ddf.ngrok-free.app';
+
+const AVAILABLE_TYPES = ['Rings', 'Pendants', 'Earrings', 'Necklaces'];
+
+const ProfileBasedRecommendationsScreen = () => {
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState(['Rings', 'Pendants']);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const toggleProductType = (type: string) => {
+    setSelectedTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    );
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      const uid = currentUser?.uid;
+
+      if (!uid) throw new Error("User not authenticated.");
+
+      setLoading(true);
+      setErrorMessage('');
+
+      const response = await axios.get(`${API_URL}/recommendations-from-profile`, {
+        params: {
+          user_id: uid,
+          product_types: selectedTypes.join(','),
+        },
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+
+      setRecommendations(response.data.recommendations || []);
+
+    } catch (error: any) {
+      console.error('❌ Error fetching recommendations:', error);
+      
+      if (error.response?.status === 404) {
+        setErrorMessage("You haven’t taken the style quiz yet! Please complete the quiz to get personalized recommendations.");
+      } else {
+        setErrorMessage("Something went wrong. Please try again later.");
+      }
+
+      setRecommendations([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [selectedTypes]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchRecommendations();
+  };
+
+  const isSelected = (type: string) => selectedTypes.includes(type);
+
+  return (
+    <View style={styles.wrapper}>
+      {/* Product Type Filters */}
+      <View style={styles.buttonRow}>
+        {AVAILABLE_TYPES.map((type) => (
+          <TouchableOpacity
+            key={type}
+            onPress={() => toggleProductType(type)}
+            style={[styles.filterButton, isSelected(type) && styles.activeButton]}
+          >
+            <Text style={[styles.buttonText, isSelected(type) && styles.activeButtonText]}>
+              {type}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {loading ? (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" />
+          <Text style={styles.loadingText}>Fetching looks from your style profile...</Text>
+        </View>
+      ) : errorMessage ? (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.container}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          {recommendations.map((item, index) => (
+            <RecommendationCard key={index} item={item} />
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+};
+
+export default ProfileBasedRecommendationsScreen;
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#f8f8ff',
+    paddingTop: 10,
+  },
+  container: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center'
+  },
+  errorBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#cc0000',
+    textAlign: 'center',
+    fontWeight: '600',
+    marginTop: 10
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 10
+  },
+  filterButton: {
+    borderColor: '#8A2BE2',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    margin: 4,
+    backgroundColor: 'white'
+  },
+  activeButton: {
+    backgroundColor: '#8A2BE2',
+  },
+  buttonText: {
+    color: '#8A2BE2',
+    fontWeight: '600',
+    fontSize: 14
+  },
+  activeButtonText: {
+    color: 'white'
+  }
+});
+
+
+
+-----------------------
+-------------------------------
+------------------------------
+-----------------------
+-------------------------------
+------------------------------
+-----------------------
+-------------------------------
+------------------------------
+
+WORKING PROFILE BASED RECOMMENDATIONS SCREEN
+
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Text,
+  RefreshControl,
+  TouchableOpacity,
+} from 'react-native';
+import { getAuth } from 'firebase/auth';
+import axios from 'axios';
+import RecommendationCard from '../components/RecommendationCard';
+
+const API_URL = 'https://6972df348ddf.ngrok-free.app';
+
+const AVAILABLE_TYPES = ['Rings', 'Pendants', 'Earrings', 'Necklaces'];
+
+const ProfileBasedRecommendationsScreen = () => {
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState(['Rings', 'Pendants']);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const toggleProductType = (type: string) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      const uid = currentUser?.uid;
+
+      if (!uid) throw new Error('User not authenticated.');
+
+      setLoading(true);
+      setErrorMessage('');
+
+      const response = await axios.get(`${API_URL}/recommendations-from-profile`, {
+        params: {
+          user_id: uid,
+          product_types: selectedTypes.join(','),
+        },
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
+
+      setRecommendations(response.data.recommendations || []);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setErrorMessage('You haven’t taken the style quiz yet!');
+      } else {
+        setErrorMessage('Something went wrong. Please try again later.');
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [selectedTypes]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchRecommendations();
+  };
+
+  const isSelected = (type: string) => selectedTypes.includes(type);
+
+  return (
+    <View style={styles.wrapper}>
+      {/* Header */}
+      <Text style={styles.header}>Your Style Recommendations</Text>
+
+      {/* Product Type Filter Buttons */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.buttonContainer}
+      >
+        {AVAILABLE_TYPES.map((type) => (
+          <TouchableOpacity
+            key={type}
+            onPress={() => toggleProductType(type)}
+            style={[
+              styles.filterButton,
+              isSelected(type) && styles.activeButton,
+            ]}
+          >
+            <Text
+              style={[
+                styles.buttonText,
+                isSelected(type) && styles.activeButtonText,
+              ]}
+            >
+              {type}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Error Display */}
+      {errorMessage ? (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </View>
+      ) : loading ? (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" />
+          <Text style={styles.loadingText}>Fetching looks from your style profile...</Text>
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.container}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          {recommendations.map((item, index) => (
+            <RecommendationCard key={index} item={item} />
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+};
+
+export default ProfileBasedRecommendationsScreen;
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#f9f8ff',
+    paddingTop: 40,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 14,
+    color: '#4B0082',
+  },
+  buttonContainer: {
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+  },
+  filterButton: {
+    borderColor: '#8A2BE2',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginHorizontal: 6,
+    backgroundColor: 'white',
+  },
+  activeButton: {
+    backgroundColor: '#8A2BE2',
+  },
+  buttonText: {
+    color: '#8A2BE2',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  activeButtonText: {
+    color: 'white',
+  },
+  container: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  errorBox: {
+    marginTop: 60,
+    paddingHorizontal: 30,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#d00',
+    textAlign: 'center',
+  },
+});
+

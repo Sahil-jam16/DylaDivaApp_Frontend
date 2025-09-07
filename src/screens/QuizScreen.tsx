@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { auth } from '../config/firebase';
 import Swiper from 'react-native-deck-swiper';
 import axios from 'axios';
 import QuizCard from '../components/QuizCard';
@@ -52,8 +53,15 @@ const QuizScreen = ({ route, navigation }) => {
 
   // --- THIS FUNCTION IS NOW FULLY IMPLEMENTED ---
   const handleSwipedAll = async () => {
+    if (likedItems.length === 0) {
+      alert("You need to like at least 1 item to receive personalized recommendations.");
+      return;
+    }
+
     setIsRecommending(true); // Start the loading transition
     console.log('Quiz finished! Preparing data for recommendations...');
+
+    const userId = auth.currentUser?.uid;
 
     // 1. Format the collected data to match the Pydantic model
     const formatItem = (item) => ({
@@ -65,27 +73,38 @@ const QuizScreen = ({ route, navigation }) => {
     });
 
     const payload = {
-      user_id: "test-user-123", // In a real app, this would come from Firebase Auth
+      user_id: userId || "test-user-123", // In a real app, this would come from Firebase Auth
       liked_items: likedItems.map(formatItem),
       disliked_items: dislikedItems.map(formatItem),
     };
 
+    //console.log(payload.user_id)
+
     try {
       // 2. Call the recommendations endpoint with the formatted payload
       console.log('Sending payload to API...');
-      
-      console.log('payload:', JSON.stringify(payload, null, 2)); // Pretty-print the payload for easier debugging
+      //console.log('payload:', JSON.stringify(payload, null, 2)); // Pretty-print the payload for easier debugging
 
       const response = await axios.post(`${API_URL}/recommendations`, payload, {
         headers: { 'ngrok-skip-browser-warning': 'true' },
       });
       
-      // 3. Navigate to the Results screen with the AI's recommendations
-      console.log('Recommendations received! Navigating to results...');
-      navigation.navigate('Results', { 
-        recommendations: response.data.recommendations 
-      });
+      const recs = response.data.recommendations || [];
+      console.log(`Received ${recs.length} recommendations from API.`);
 
+      if (recs.length === 0) {
+        alert("We couldn’t generate recommendations. Try liking a few items in the quiz for better results.");
+        navigation.goBack(); // or redirect to Quiz screen
+      } else {
+        navigation.navigate('Results', {
+          recommendations: recs,
+        });
+      }
+      // // 3. Navigate to the Results screen with the AI's recommendations
+      // console.log('Recommendations received! Navigating to results...');
+      // navigation.navigate('Results', { 
+      //   recommendations: response.data.recommendations 
+      // });
     } catch (error) {
       console.error('Error fetching recommendations:', error.response?.data || error.message);
       alert('Sorry, we could not generate recommendations at this time.');
