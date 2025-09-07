@@ -1,0 +1,51 @@
+// src/components/ProductCard.tsx
+import React from 'react';
+import { View, Image, StyleSheet } from 'react-native';
+import { Text, Card } from 'react-native-paper';
+
+const ProductCard = ({ product }: { product: any }) => {
+  return (
+    <Card style={styles.card} onPress={() => console.log(product.product_name)}>
+      <Image source={{ uri: product.product_image_url }} style={styles.image} />
+      <Card.Content>
+        <Text style={styles.name}>{product.product_name}</Text>
+        <Text style={styles.price}>₹ {product.price}</Text>
+        <Text style={styles.description}>{product.short_description}</Text>
+      </Card.Content>
+    </Card>
+  );
+};
+
+export default ProductCard;
+
+const styles = StyleSheet.create({
+  card: {
+    marginVertical: 10,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#FFF',
+    elevation: 2,
+  },
+  image: {
+    height: 180,
+    width: '100%',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 8,
+    color: '#2C2C2C',
+  },
+  price: {
+    fontSize: 14,
+    color: '#8A2BE2',
+    marginTop: 4,
+  },
+  description: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+});
