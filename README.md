@@ -32,7 +32,7 @@ Dyla Diva is a React Native mobile app for personalized jewelry recommendations,
 1. **Clone the repository:**
    ```sh
    git clone <your-repo-url>
-   cd DylaDivaApp
+   cd DylaDivaAppn
    ```
 2. **Install dependencies:**
    ```sh
