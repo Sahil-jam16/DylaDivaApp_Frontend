@@ -66,3 +66,11 @@ DylaDivaApp/
   theme.ts               # (Legacy) theme file
   package.json           # Project metadata and scripts
 ```
+
+## 🚀 Live Demo
+
+Click the GIF below to watch the full video demo of the app in action.
+
+[![Dyla Diva App Demo]]([https://www.youtube.com/watch?v=your_video_id](https://drive.google.com/drive/folders/16sOqbldrBRj8T5O4kzw6TCECYcdwkK4Q?usp=sharing))
+
+Link -> https://drive.google.com/drive/folders/16sOqbldrBRj8T5O4kzw6TCECYcdwkK4Q?usp=sharing
